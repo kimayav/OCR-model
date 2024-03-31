@@ -67,7 +67,7 @@ print("[INFO] OCR'ing input image...")
 
 # loop over the results
 for (bbox, text, prob) in results:
-    with open('output.txt', 'a+', encoding='utf-8') as file:
+    with open('output1.txt', 'a+', encoding='utf-8') as file:
         file.write(str(text))
         file.write('\n')
         # print(text)
