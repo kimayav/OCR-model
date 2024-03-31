@@ -27,7 +27,8 @@ def extract_features(list):
                     match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
                     if match:
                         # print('yes')
-                        features["Company Name"] = match.group(1)
+                        features["Company Name"] = match.group(
+                            1).strip().replace(" ", "")
         # elif a == 0:
         #     match = re.search(
         #         r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i])
@@ -78,7 +79,7 @@ def extract_features(list):
 
         elif a == 0:
             match = re.search(
-                r"Bill Date\s*:\s*(\d{2}-\d{2}-\d{4}-?)", list[i])
+                r"(Bill|Invoice)? Date\s*:\s*(\d{2}-\d{2}-\d)$", list[i])
             if match:
                 print(match)
                 features["Date"] = match.group(0)
