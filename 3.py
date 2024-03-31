@@ -94,6 +94,6 @@ features = extract_features(list1)
 for key, value in features.items():
     print(f"{key}: {value}")
 
-# show the output image
-cv2.imwrite("output_image.jpg", image)
-cv2.waitKey(0)
+# # show the output image
+# cv2.imwrite("output_image.jpg", image)
+# cv2.waitKey(0)
