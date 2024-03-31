@@ -3,6 +3,22 @@ a = 0
 list1 = []
 
 
+def extract_date(text):
+    date_patterns = [
+        r"\b(\d{2}-\d{2}-\d{4})\b",  # DD-MM-YYYY
+        r"\b(\d{2}/\d{2}/\d{4})\b",  # DD/MM/YYYY
+        r"\b(\d{4}-\d{2}-\d{2})\b",  # YYYY-MM-DD
+        r"\b(\d{4}/\d{2}/\d{2})\b",  # YYYY/MM/DD
+        # D-D-YY or DD-D-YY or D-DD-YY or DD-DD-YY
+        r"\b(\d{1,2}-\d{1,2}-\d{2})\b"
+    ]
+    for pattern in date_patterns:
+        match = re.search(pattern, text)
+        if match:
+            return match.group(1)
+    return None
+
+
 def extract_features(list):
     features = {
         "Company Name": None,
@@ -41,11 +57,12 @@ def extract_features(list):
         #             if match:
         #                 # print('yes')
         #                 features["Invoice Number"] = match.group(1)
+
         elif re.search(r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE):
             match = re.search(
-                r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE)
+                r'(Invoice| Bill)? \s*\n\s*\n(.+?)\s*\n', list[i], re.MULTILINE)
             if match:
-                features["Invoice Number"] = match.group(1)
+                features["Invoice Number"] = match.group(1).strip()
 
         # elif "GSTIN/n" in list[i]:
         #     # print("x", i)
@@ -58,7 +75,7 @@ def extract_features(list):
             match = re.search(
                 r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
             if match:
-                features["GSTIN"] = list[i]
+                features["GSTIN"] = match.group(2)
                 # print(match)
                 # break
             else:
@@ -73,16 +90,12 @@ def extract_features(list):
             if match:
                 features["Total Amount"] = list[i+1]
 
-        elif "Product\n" in list[i]:
-            # if multiple or elif
-            features["Products"] = str(list[i+9])
-
+        elif re.search(r"\b[A-Z][A-Za-z\s]+\b", list[i], re.MULTILINE):
+            match = re.search(r"\b[A-Z]+\b", list[i], re.MULTILINE)
+            # features["Products"] = match.group()
+            print(match)
         elif a == 0:
-            match = re.search(
-                r"(Bill|Invoice)? Date\s*:\s*(\d{2}-\d{2}-\d)$", list[i])
-            if match:
-                print(match)
-                features["Date"] = match.group(0)
+            extract_date(list[i])
     return features
 
 

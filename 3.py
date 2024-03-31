@@ -1,7 +1,8 @@
+import tkinter as tk
+from tkinter import filedialog
+import cv2
 import easyocr as Reader
 import easyocr
-import argparse
-import cv2
 import re
 
 
@@ -9,91 +10,117 @@ def cleanup_text(text):
     return "".join([c if ord(c) < 128 else "" for c in text]).strip()
 
 
+def extract_date(text):
+    date_patterns = [
+        r"\b(\d{2}-\d{2}-\d{4})\b",  # DD-MM-YYYY
+        r"\b(\d{2}/\d{2}/\d{4})\b",  # DD/MM/YYYY
+        r"\b(\d{4}-\d{2}-\d{2})\b",  # YYYY-MM-DD
+        r"\b(\d{4}/\d{2}/\d{2})\b",  # YYYY/MM/DD
+        # D-D-YY or DD-D-YY or D-DD-YY or DD-DD-YY
+        r"\b(\d{1,2}-\d{1,2}-\d{2})\b"
+    ]
+    for pattern in date_patterns:
+        match = re.search(pattern, text)
+        if match:
+            return match.group(1)
+    return None
+
+
 def extract_features(list):
     features = {
-        "Products": [],
-        "Invoice Number": None,
         "Company Name": None,
-        "GST": None,
+        "Invoice Number": None,
+        "Date": None,
+        "GSTIN": None,
+        "Products": [],
         "Total Amount": None
     }
-    features["Company Name"] = list[1]
-
     for i in range(len(list)):
-        if "Invoice No:\n" in list[i]:
-            # print("x", i)
-            match = re.search(r"[A-Z]{2}\d{5}\n", list[i+1])
-            # print('yes')
+        if "For" in list[i]:
+            match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
             if match:
-                # print('yes')
-                features["Invoice Number"] = list[i+1]
-        elif "GSTIN\n" in list[i]:
-            # print("x", i)
-            # match = re.search(r"\d{2}[A-Z]{5}\d{3}[A-Z]{5}}\n", list[i+1])
-            # if match:
-            #     print("yes")
-            features["GST"] = list[i+1]
+                features["Company Name"] = match.group(
+                    1).strip().replace(" ", "")
+        elif re.search(r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE):
+            match = re.search(
+                r'(Invoice| Bill)? \s*\n\s*\n(.+?)\s*\n', list[i], re.MULTILINE)
+            if match:
+                features["Invoice Number"] = match.group(1).strip()
+        elif "GSTIN" in list[i]:
+            match = re.search(
+                r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
+            if match:
+                features["GSTIN"] = match.group(2)
+            else:
+                for j in range(i+1, len(list)):
+                    match = re.findall(r"([A-Za-z0-9]{15})$", list[j])
+                    if match and features["GSTIN"] == None:
+                        features["GSTIN"] = match[0]
         elif "TOTAL\n" in list[i]:
             match = re.search(r"\d+\.\d{2}", list[i+1])
             if match:
                 features["Total Amount"] = list[i+1]
-        elif "Product\n" in list[i]:
-            # if multiple or elif
-            features["Products"] = str(list[i+9])
-
+        elif re.search(r"\b[A-Z][A-Za-z\s]+\b", list[i], re.MULTILINE):
+            match = re.search(r"\b[A-Z]+\b", list[i], re.MULTILINE)
+            # features["Products"] = match.group()
     return features
 
 
-ap = argparse.ArgumentParser()
-ap.add_argument("-i", "--image", required=True,
-                help="path to input image to be OCR'd")
-ap.add_argument("-l", "--langs", type=str, default="en",
-                help="comma separated list of languages to OCR")
-ap.add_argument("-g", "--gpu", type=int, default=-1,
-                help="whether or not GPU should be used")
-args = vars(ap.parse_args())
-# break the input languages into a comma separated list
-langs = args["langs"].split(",")
-print("[INFO] OCR'ing with the following languages: {}".format(langs))
-# load the input image from disk
-image = cv2.imread(args["image"])
+def ocr_and_extract_features(image_path, langs=["en"], gpu=False):
+    image = cv2.imread(image_path)
+    reader = easyocr.Reader(langs, gpu=gpu)
+    results = reader.readtext(image)
+    text_list = []
 
-reader = easyocr.Reader(langs, gpu=args["gpu"] > 0)
-results = reader.readtext(image)
-print("[INFO] OCR'ing input image...")
-# results = list(results)
-# print(results)
+    for (bbox, text, prob) in results:
+        text = cleanup_text(text)
+        text_list.append(text)
+
+    with open('output.txt', 'w', encoding='utf-8') as file:
+        file.write('\n'.join(text_list))
+
+    list1 = text_list
+    features = extract_features(list1)
+    return features
 
 
-# loop over the results
-for (bbox, text, prob) in results:
-    with open('output1.txt', 'a+', encoding='utf-8') as file:
-        file.write(str(text))
-        file.write('\n')
-        # print(text)
+def select_image():
+    file_path = filedialog.askopenfilename(title="Select an image file",
+                                           filetypes=(("JPEG files", "*.jpg"),
+                                                      ("PNG files", "*.png"),
+                                                      ("All files", "*.*")))
+    if file_path:
+        features = ocr_and_extract_features(file_path)
+        for key, value in features.items():
+            text_output.insert(tk.END, f"{key}: {value}\n")
+        display_image(file_path)
 
-    (tl, tr, br, bl) = bbox
-    tl = (int(tl[0]), int(tl[1]))
-    tr = (int(tr[0]), int(tr[1]))
-    br = (int(br[0]), int(br[1]))
-    bl = (int(bl[0]), int(bl[1]))
 
-    text = cleanup_text(text)
-    cv2.rectangle(image, tl, br, (0, 255, 0), 2)
-    cv2.putText(image, text, (tl[0], tl[1] - 10),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
-list1 = list()
+def display_image(image_path):
+    image = cv2.imread(image_path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = cv2.resize(image, (400, 400))
+    image = image.fromarray(image)
+    image = ImageTk.PhotoImage(image)
+    image_label.config(image=image)
+    image_label.image = image
 
-with open('output.txt', 'r+', encoding='utf-8') as file:
-    for line in file:
-        list1.append(line)
-    # print(list1)
-features = extract_features(list1)
 
-# Print the extracted features
-for key, value in features.items():
-    print(f"{key}: {value}")
+# Create the main window
+root = tk.Tk()
+root.title("OCR and Feature Extraction")
 
-# # show the output image
-# cv2.imwrite("output_image.jpg", image)
-# cv2.waitKey(0)
+# Create a button to select an image
+select_button = tk.Button(root, text="Select Image", command=select_image)
+select_button.pack(pady=10)
+
+# Create a label to display the selected image
+image_label = tk.Label(root)
+image_label.pack(pady=10)
+
+# Create a text widget to display the extracted features
+text_output = tk.Text(root, width=50, height=20)
+text_output.pack(padx=10, pady=10)
+
+# Start the Tkinter event loop
+root.mainloop()
