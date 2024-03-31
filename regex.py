@@ -55,17 +55,17 @@ def extract_features(list):
 
         elif "GSTIN" in list[i]:
             match = re.search(
-                r"(GSTIN|GST)\s*:\s*([A-Za-z0-9]{15})$", list[i])
+                r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
             if match:
                 features["GSTIN"] = list[i]
-                print(match)
-                break
+                # print(match)
+                # break
             else:
-                for j in range(i-1, len(list)):
+                for j in range(i+1, len(list)):
                     match = re.findall(r"([A-Za-z0-9]{15})$", list[j])
-                    if match:
+                    if match and features["GSTIN"] == None:
                         features["GSTIN"] = match[0]
-                        # print(match)
+                        print(match)
 
         elif "TOTAL\n" in list[i]:
             match = re.search(r"\d+\.\d{2}", list[i+1])
@@ -76,6 +76,12 @@ def extract_features(list):
             # if multiple or elif
             features["Products"] = str(list[i+9])
 
+        elif a == 0:
+            match = re.search(
+                r"Bill Date\s*:\s*(\d{2}-\d{2}-\d{4}-?)", list[i])
+            if match:
+                print(match)
+                features["Date"] = match.group(0)
     return features
 
 
