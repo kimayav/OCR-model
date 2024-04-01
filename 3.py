@@ -3,26 +3,11 @@ from tkinter import filedialog
 import cv2
 import easyocr
 import re
+a = 0
 
 
 def cleanup_text(text):
     return "".join([c if ord(c) < 128 else "" for c in text]).strip()
-
-
-def extract_date(text):
-    date_patterns = [
-        r"\b(\d{2}-\d{2}-\d{1,4})\b",  # DD-MM-YYYY
-        r"\b(\d{2}/\d{2}/\d{1,4})\b",  # DD/MM/YYYY
-        r"\b(\d{4}-\d{2}-\d{2})\b",  # YYYY-MM-DD
-        r"\b(\d{4}/\d{2}/\d{2})\b",  # YYYY/MM/DD
-        # D-D-YY or DD-D-YY or D-DD-YY or DD-DD-YY
-        r"\b(\d{1,2}-\d{1,2}-\d{2})\b"
-    ]
-    for pattern in date_patterns:
-        match = re.search(pattern, text)
-        if match:
-            return match.group(1)
-    return None
 
 
 def extract_features(list):
@@ -39,11 +24,24 @@ def extract_features(list):
             match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
             if match:
                 features["Company Name"] = match.group(1)
-        elif re.search(r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE):
+            elif a == 0:
+                for j in range(i, len(list)):
+                    match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
+                    if match:
+                        features["Company Name"] = match.group(
+                            1).strip().replace(" ", "")
+
+        elif re.search(r"Invoice\s*|\s*Bill\s*No\s*:?\s*", list[i]):
             match = re.search(
-                r'(Invoice| Bill)? \s*\n\s*\n(.+?)\s*\n', list[i], re.MULTILINE)
+                r"(?:Invoice|Bill)?\s*No\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
             if match:
-                features["Invoice Number"] = match.group(1).strip()
+                features["Invoice Number"] = match.group(1)
+            elif re.search(r"Invoice\s*|\s*Bill\s*No_\s*:?\s*", list[i]):
+                match = re.search(
+                    r"(?:Invoice|Bill)?\s*No_\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
+                if match:
+                    features["Invoice Number"] = match.group(1)
+
         elif "GSTIN" in list[i]:
             match = re.search(
                 r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
@@ -54,12 +52,18 @@ def extract_features(list):
                     match = re.findall(r"([A-Za-z0-9]{15})$", list[j])
                     if match and features["GSTIN"] == None:
                         features["GSTIN"] = match[0]
-        elif "TOTAL\n" in list[i]:
+
+        elif "TOTAL" in list[i]:
             match = re.search(r"\d+\.\d{2}", list[i+1])
             if match:
                 features["Total Amount"] = list[i+1]
-        elif re.search(r"\b[A-Z][A-Za-z\s]+\b", list[i], re.MULTILINE):
-            match = re.search(r"\b[A-Z]+\b", list[i], re.MULTILINE)
+
+        elif a == 0:
+            match = re.search(
+                r"(?:Date|\bBill Date\b|\bInvoice Date\b)?\s*\b(\d{1,2}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{2,4})\b", " ".join(list[i:len(list)]))
+            if match:
+                features["Date"] = match.group(1)
+
     return features
 
 
@@ -88,7 +92,7 @@ def select_image():
                                                       ("All files", "*.*")))
     if file_path:
         image_label.config(
-            text=f"Selected Image: {file_path}\nProcessing Image")
+            text=f"Selected Image: {file_path}\nProcessing Image...")
 
         text_output.delete("1.0", tk.END)
         features = ocr_and_extract_features(file_path)
@@ -96,6 +100,12 @@ def select_image():
             text_output.insert(tk.END, f"{key}: {value}\n")
         image_label.config(
             text=f"Selected Image: {file_path}\n Expected Features: ")
+
+
+def select_new_image():
+    text_output.delete("1.0", tk.END)
+    image_label.config(text="Selecting New Image...")
+    select_image()
 
 
 def save_text():
@@ -117,6 +127,11 @@ root.title("OCR and Feature Extraction")
 select_button = tk.Button(root, text="Select Image", command=select_image)
 select_button.pack(pady=10)
 
+# Create a button to select a new image
+new_image_button = tk.Button(
+    root, text="Select New Image", command=select_new_image)
+new_image_button.pack(pady=10)
+
 save_button = tk.Button(root, text="Save", command=save_text)
 save_button.pack(pady=10)
 
@@ -127,7 +142,6 @@ image_label.pack(pady=10)
 # Create a text widget to display the extracted features
 text_output = tk.Text(root, width=50, height=20)
 text_output.pack(padx=10, pady=10)
-
 
 # Start the Tkinter event loop
 root.mainloop()
