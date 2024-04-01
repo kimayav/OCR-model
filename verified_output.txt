@@ -1,5 +1,7 @@
-"Company Name": SANJAY FOODS,        
-"Products": [],
-"Invoice Number": None,       
-"GST": 27BUGPMI67DIZR,
-"Total Amount": 1100.00
+Company Name: SANJAY FOOD
+Invoice Number: 12345678
+Date: None
+GSTIN: 27BUGPMI67DIZR
+Products: []
+Total Amount: None
+

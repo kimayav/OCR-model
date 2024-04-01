@@ -100,7 +100,7 @@ def select_image():
 
 def save_text():
     # Get the edited text from the text widget
-    edited_text = text.get("1.0", tk.END)
+    edited_text = text_output.get("1.0", tk.END)
 
     # Save the edited text to a file
     with open("verified_output.txt", "w") as f:
