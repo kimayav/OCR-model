@@ -1,5 +1,5 @@
 Company Name: SANJAY FOOD
-Invoice Number: 12345678
+Invoice Number: 12345
 Date: None
 GSTIN: 27BUGPMI67DIZR
 Products: []

@@ -1,10 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
 import cv2
-import easyocr as Reader
 import easyocr
 import re
-import PIL as ImageTk
 
 
 def cleanup_text(text):
@@ -13,8 +11,8 @@ def cleanup_text(text):
 
 def extract_date(text):
     date_patterns = [
-        r"\b(\d{2}-\d{2}-\d{4})\b",  # DD-MM-YYYY
-        r"\b(\d{2}/\d{2}/\d{4})\b",  # DD/MM/YYYY
+        r"\b(\d{2}-\d{2}-\d{1,4})\b",  # DD-MM-YYYY
+        r"\b(\d{2}/\d{2}/\d{1,4})\b",  # DD/MM/YYYY
         r"\b(\d{4}-\d{2}-\d{2})\b",  # YYYY-MM-DD
         r"\b(\d{4}/\d{2}/\d{2})\b",  # YYYY/MM/DD
         # D-D-YY or DD-D-YY or D-DD-YY or DD-DD-YY
@@ -40,8 +38,7 @@ def extract_features(list):
         if "For" in list[i]:
             match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
             if match:
-                features["Company Name"] = match.group(
-                    1)
+                features["Company Name"] = match.group(1)
         elif re.search(r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE):
             match = re.search(
                 r'(Invoice| Bill)? \s*\n\s*\n(.+?)\s*\n', list[i], re.MULTILINE)
@@ -63,7 +60,6 @@ def extract_features(list):
                 features["Total Amount"] = list[i+1]
         elif re.search(r"\b[A-Z][A-Za-z\s]+\b", list[i], re.MULTILINE):
             match = re.search(r"\b[A-Z]+\b", list[i], re.MULTILINE)
-            # features["Products"] = match.group()
     return features
 
 
@@ -91,11 +87,15 @@ def select_image():
                                                       ("PNG files", "*.png"),
                                                       ("All files", "*.*")))
     if file_path:
+        image_label.config(
+            text=f"Selected Image: {file_path}\nProcessing Image")
+
+        text_output.delete("1.0", tk.END)
         features = ocr_and_extract_features(file_path)
         for key, value in features.items():
             text_output.insert(tk.END, f"{key}: {value}\n")
-
-        # display_image(file_path)
+        image_label.config(
+            text=f"Selected Image: {file_path}\n Expected Features: ")
 
 
 def save_text():
@@ -105,15 +105,8 @@ def save_text():
     # Save the edited text to a file
     with open("verified_output.txt", "w") as f:
         f.write(edited_text)
-
-# # def display_image(image_path):
-#     image = cv2.imread(image_path)
-#     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-#     image = cv2.resize(image, (400, 400))
-#     image = image.fromarray(image)
-#     image = ImageTk.PhotoImage(image)
-#     image_label.config(image=image)
-#     image_label.image = image
+    text_output.delete("1.0", tk.END)
+    text_output.insert(tk.END, "File saved")
 
 
 # Create the main window
@@ -127,7 +120,6 @@ select_button.pack(pady=10)
 save_button = tk.Button(root, text="Save", command=save_text)
 save_button.pack(pady=10)
 
-
 # Create a label to display the selected image
 image_label = tk.Label(root)
 image_label.pack(pady=10)
@@ -135,6 +127,7 @@ image_label.pack(pady=10)
 # Create a text widget to display the extracted features
 text_output = tk.Text(root, width=50, height=20)
 text_output.pack(padx=10, pady=10)
+
 
 # Start the Tkinter event loop
 root.mainloop()
