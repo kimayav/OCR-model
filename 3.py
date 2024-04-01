@@ -4,6 +4,7 @@ import cv2
 import easyocr as Reader
 import easyocr
 import re
+import PIL as ImageTk
 
 
 def cleanup_text(text):
@@ -40,7 +41,7 @@ def extract_features(list):
             match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
             if match:
                 features["Company Name"] = match.group(
-                    1).strip().replace(" ", "")
+                    1)
         elif re.search(r"(?:Invoice|Bill) No:?\s*([A-Za-z0-9]+)$", list[i], re.MULTILINE):
             match = re.search(
                 r'(Invoice| Bill)? \s*\n\s*\n(.+?)\s*\n', list[i], re.MULTILINE)
@@ -93,17 +94,26 @@ def select_image():
         features = ocr_and_extract_features(file_path)
         for key, value in features.items():
             text_output.insert(tk.END, f"{key}: {value}\n")
-        display_image(file_path)
+
+        # display_image(file_path)
 
 
-def display_image(image_path):
-    image = cv2.imread(image_path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = cv2.resize(image, (400, 400))
-    image = image.fromarray(image)
-    image = ImageTk.PhotoImage(image)
-    image_label.config(image=image)
-    image_label.image = image
+def save_text():
+    # Get the edited text from the text widget
+    edited_text = text.get("1.0", tk.END)
+
+    # Save the edited text to a file
+    with open("verified_output.txt", "w") as f:
+        f.write(edited_text)
+
+# # def display_image(image_path):
+#     image = cv2.imread(image_path)
+#     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+#     image = cv2.resize(image, (400, 400))
+#     image = image.fromarray(image)
+#     image = ImageTk.PhotoImage(image)
+#     image_label.config(image=image)
+#     image_label.image = image
 
 
 # Create the main window
@@ -113,6 +123,10 @@ root.title("OCR and Feature Extraction")
 # Create a button to select an image
 select_button = tk.Button(root, text="Select Image", command=select_image)
 select_button.pack(pady=10)
+
+save_button = tk.Button(root, text="Save", command=save_text)
+save_button.pack(pady=10)
+
 
 # Create a label to display the selected image
 image_label = tk.Label(root)

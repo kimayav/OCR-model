@@ -1,0 +1,39 @@
+import tkinter as tk
+
+
+class TextEditor:
+    def __init__(self, master):
+        self.master = master
+        self.text = tk.Text(master)
+        self.text.pack()
+
+        # Create a button to print output to the text widget
+        self.print_button = tk.Button(
+            master, text="Print", command=self.print_output)
+        self.print_button.pack()
+
+        # Create a button to save the edited text
+        self.save_button = tk.Button(
+            master, text="Save", command=self.save_text)
+        self.save_button.pack()
+
+    def print_output(self):
+        # Get the text to print from the console
+        output = input("Enter text to print: ")
+
+        # Insert the text into the text widget
+        self.text.insert(tk.END, output)
+
+    def save_text(self):
+        # Get the edited text from the text widget
+        edited_text = self.text.get("1.0", tk.END)
+
+        # Save the edited text to a file
+        with open("verified_output.txt", "w") as f:
+            f.write(edited_text)
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    text_editor = TextEditor(root)
+    root.mainloop()
