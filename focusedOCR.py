@@ -13,56 +13,53 @@ def cleanup_text(text):
 def extract_features(list):
     features = {
         "Company Name": None,
-        "Invoice Number": None,
-        "Date": None,
-        "GSTIN": None,
-        "Products": [],
-        "Total Amount": None
+        # "Invoice Number": None,
+        # "Date": None,
+        # "GSTIN": None,
+        # "Products": [],
+        # "Total Amount": None
     }
     for i in range(len(list)):
         if "For" in list[i]:
             match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
             if match:
                 features["Company Name"] = match.group(1)
-            elif a == 0:
-                for j in range(i, len(list)):
-                    match = re.search(r"For\s*([A-Za-z\s]*)$", list[i])
-                    if match:
-                        features["Company Name"] = match.group(
-                            1).strip().replace(" ", "")
+        else:
+            features["Company Name"] = list[0]
 
-        elif re.search(r"Invoice\s*|\s*Bill\s*No\s*:?\s*", list[i]):
-            match = re.search(
-                r"(?:Invoice|Bill)?\s*No\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
-            if match:
-                features["Invoice Number"] = match.group(1)
-            elif re.search(r"Invoice\s*|\s*Bill\s*No_\s*:?\s*", list[i]):
-                match = re.search(
-                    r"(?:Invoice|Bill)?\s*No_\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
-                if match:
-                    features["Invoice Number"] = match.group(1)
+        # elif re.search(r"Invoice\s*|\s*Bill\s*No\s*:?\s*", list[i]):
+        #     match = re.search(
+        #         r"(?:Invoice|Bill)?\s*No\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
+        #     if match:
+        #         features["Invoice Number"] = match.group(1)
+        #     elif re.search(r"Invoice\s*|\s*Bill\s*No_\s*:?\s*", list[i]):
+        #         match = re.search(
+        #             r"(?:Invoice|Bill)?\s*No_\s*:?[\s:]*([A-Za-z]{2}[A-Za-z0-9/-]+)", "\n".join(list[i:len(list)]))
+        #         if match:
+        #             features["Invoice Number"] = match.group(1)
 
-        elif "GSTIN" in list[i]:
-            match = re.search(
-                r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
-            if match:
-                features["GSTIN"] = match.group(2)
-            else:
-                for j in range(i+1, len(list)):
-                    match = re.findall(r"([A-Za-z0-9]{15})$", list[j])
-                    if match and features["GSTIN"] == None:
-                        features["GSTIN"] = match[0]
+        # elif "GSTIN" in list[i]:
+        #     match = re.search(
+        #         r"(GSTIN|GST|GSTin)\s*:\s*([A-Za-z0-9]+)$", list[i])
+        #     if match:
+        #         features["GSTIN"] = match.group(2)
+        #     else:
+        #         for j in range(i+1, len(list)):
+        #             match = re.findall(
+        #                 r"([r'\b[A-Za-z0-9]{26}\s\d+\b')$", list[j])
+        #             if match and features["GSTIN"] == None:
+        #                 features["GSTIN"] = match[0]
 
-        elif "TOTAL" in list[i]:
-            match = re.search(r"\d+\.\d{2}", list[i+1])
-            if match:
-                features["Total Amount"] = list[i+1]
+        # elif "TOTAL" in list[i]:
+        #     match = re.search(r"\d+\.\d{2}", list[i+1])
+        #     if match:
+        #         features["Total Amount"] = list[i+1]
 
-        elif a == 0:
-            match = re.search(
-                r"(?:Date|\bBill Date\b|\bInvoice Date\b)?\s*\b(\d{1,2}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{2,4})\b", " ".join(list[i:len(list)]))
-            if match:
-                features["Date"] = match.group(1)
+        # elif a == 0:
+        #     match = re.search(
+        #         r"(?:Date|\bBill Date\b|\bInvoice Date\b)?\s*\b(\d{1,2}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{2,4})\b", " ".join(list[i:len(list)]))
+        #     if match:
+        #         features["Date"] = match.group(1)
 
     return features
 
@@ -79,7 +76,7 @@ def ocr_and_extract_features(image_path, langs=["en"], gpu=False):
         text_list.append(text)
         # text_l
 
-    with open('output.txt', 'w', encoding='utf-8') as file:
+    with open('focused_output.txt', 'w', encoding='utf-8') as file:
         file.write('\n'.join(text_list))
 
     # with open('results.txt', 'w', encoding='utf-8') as file:

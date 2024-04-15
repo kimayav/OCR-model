@@ -1,7 +1,7 @@
-Company Name: VAST KONNECT
-Invoice Number: VK33633
-Date: 26-03-2024
-GSTIN: 27AAVFV286SK1Z8
-Products: [1,2,3,4]
-Total Amount: 522.00
+Company Name: SANJAY FOOD
+Invoice Number: SF024359
+Date: 24-03-202
+GSTIN: 27BUGPMI67DIZR
+Products: []
+Total Amount: 1100.00
 
