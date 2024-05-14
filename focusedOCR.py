@@ -2,6 +2,7 @@ import cv2
 import easyocr
 import tkinter as tk
 from tkinter import filedialog
+import os
 
 # Initialize EasyOCR reader
 reader = easyocr.Reader(['en'])
@@ -9,7 +10,7 @@ reader = easyocr.Reader(['en'])
 # Function to process image and perform OCR
 
 
-def process_image(image_path):
+def process_img(image_path):
     # Load the image
     image = cv2.imread(image_path)
 
@@ -25,6 +26,10 @@ def process_image(image_path):
     # Define the offset
     offset = 5
 
+    # Create the processed images directory if it doesn't exist
+    if not os.path.exists("processed_images"):
+        os.makedirs("processed_images")
+
     # Process each region
     for region in regions:
         name = region["name"]
@@ -33,7 +38,7 @@ def process_image(image_path):
         x1, y1, x2, y2 = x1 - offset, y1 - offset, x2 + offset, y2 + offset
         cropped_image = image[y1:y2, x1:x2]
         # Save the cropped image
-        cv2.imwrite(f'cropped_{name}.jpg', cropped_image)
+        cv2.imwrite(f'processed_images/cropped_{name}.jpg', cropped_image)
         # Perform OCR on the cropped image
         result = reader.readtext(cropped_image)
         print(f"Text in {name}: {result}")
@@ -52,7 +57,7 @@ def select_image():
                                                       ("PNG files", "*.png"),
                                                       ("All files", "*.*")))
     if file_path:
-        process_image(file_path)
+        process_img(file_path)
 
 
 # Create the main tkinter window
@@ -64,9 +69,4 @@ select_button = tk.Button(root, text="Select Image", command=select_image)
 select_button.pack(pady=10)
 
 # Start the tkinter event loop
-# root.destroy()
 root.mainloop()
-
-with open('C:\\kimdsyyaya\\NeoThermal\\multiple_images.py', 'r') as file:
-    code = file.read()
-    exec(code)
