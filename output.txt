@@ -1,11 +1,126 @@
+Output for Image 1:
+Image: processed_images/new - Copy (2)_cropped_Company Name.jpg
 SANJAY FOOD
 
-Bill No:SF024359
+Image: processed_images/new - Copy (2)_cropped_BILL Number.jpg
+Bill No
+SF024359
 
-Bill Date : 24-03-2024
+Image: processed_images/new - Copy (2)_cropped_DATE.jpg
+Bill Date : 24-03-202-
 
-GSTIN:27BUGPMI67DIZR
+Image: processed_images/new - Copy (2)_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
 
+Image: processed_images/new - Copy (2)_cropped_Total amount.jpg
 1100.00
 
 
+
+========================================
+Output for Image 2:
+Image: processed_images/new - Copy (3)_cropped_Company Name.jpg
+SANJAY FOOD
+
+Image: processed_images/new - Copy (3)_cropped_BILL Number.jpg
+Bill No
+SF024359
+
+Image: processed_images/new - Copy (3)_cropped_DATE.jpg
+Bill Date : 24-03-202-
+
+Image: processed_images/new - Copy (3)_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
+
+Image: processed_images/new - Copy (3)_cropped_Total amount.jpg
+1100.00
+
+
+
+========================================
+Output for Image 3:
+Image: processed_images/new - Copy (4)_cropped_Company Name.jpg
+SANJAY FOOD
+
+Image: processed_images/new - Copy (4)_cropped_BILL Number.jpg
+Bill No
+SF024359
+
+Image: processed_images/new - Copy (4)_cropped_DATE.jpg
+Bill Date : 24-03-202-
+
+Image: processed_images/new - Copy (4)_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
+
+Image: processed_images/new - Copy (4)_cropped_Total amount.jpg
+1100.00
+
+
+
+========================================
+Output for Image 4:
+Image: processed_images/new - Copy (5)_cropped_Company Name.jpg
+SANJAY FOOD
+
+Image: processed_images/new - Copy (5)_cropped_BILL Number.jpg
+Bill No
+SF024359
+
+Image: processed_images/new - Copy (5)_cropped_DATE.jpg
+Bill Date : 24-03-202-
+
+Image: processed_images/new - Copy (5)_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
+
+Image: processed_images/new - Copy (5)_cropped_Total amount.jpg
+1100.00
+
+
+
+========================================
+Output for Image 5:
+Image: processed_images/new - Copy_cropped_Company Name.jpg
+SANJAY FOOD
+
+Image: processed_images/new - Copy_cropped_BILL Number.jpg
+Bill No
+SF024359
+
+Image: processed_images/new - Copy_cropped_DATE.jpg
+Bill Date : 24-03-202-
+
+Image: processed_images/new - Copy_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
+
+Image: processed_images/new - Copy_cropped_Total amount.jpg
+1100.00
+
+
+
+========================================
+Output for Image 6:
+Image: processed_images/new_cropped_Company Name.jpg
+SANJAY FOOD
+
+Image: processed_images/new_cropped_BILL Number.jpg
+Bill No
+SF024359
+
+Image: processed_images/new_cropped_DATE.jpg
+Bill Date : 24-03-202-
+
+Image: processed_images/new_cropped_GST-IN:.jpg
+GSTIN
+27BUGPMI67DIZR
+
+Image: processed_images/new_cropped_Total amount.jpg
+1100.00
+
+
+
+========================================
